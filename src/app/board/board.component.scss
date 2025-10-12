@@ -1,0 +1,91 @@
+.board-wrapper {
+    width: 800px;
+    overflow-x: hidden;
+    border: 2px solid black;
+}
+
+.board {
+    width: 900px;
+    height: 800px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.square {
+    width: 100px;
+    height: 100px;
+    // display: flex;
+}
+
+.board> :nth-child(even) {
+    background-color: lightblue;
+}
+
+.board> :nth-child(odd) {
+    background-color: white;
+}
+
+// .board > * {
+//     background-size: cover;
+// }
+
+// .board [class^="square "] {
+//   cursor:grab;
+// }
+
+.piece {
+    width: 100px;
+    height: 100px;
+    cursor: grab;
+    display: block;
+}
+
+// .r{
+//     background-image: url('../../assets/pieces/Chess_rdt45.svg');
+// }
+
+// .n{
+//     background-image: url('../../assets/pieces/Chess_ndt45.svg');
+// }
+
+// .b{
+//     background-image: url('../../assets/pieces/Chess_bdt45.svg');
+// }
+
+// .q{
+//     background-image: url('../../assets/pieces/Chess_qdt45.svg');
+// }
+
+// .k{
+//     background-image: url('../../assets/pieces/Chess_kdt45.svg');
+//     // background-image: url('../../assets/pieces/rahul.svg');
+// }
+
+// .p{
+//     background-image: url('../../assets/pieces/Chess_pdt45.svg');
+// }
+
+// .R{
+//     background-image: url('../../assets/pieces/Chess_rlt45.svg');
+// }
+
+// .N{
+//     background-image: url('../../assets/pieces/Chess_nlt45.svg');
+// }
+
+// .B{
+//     background-image: url('../../assets/pieces/Chess_blt45.svg');
+// }
+
+// .Q{
+//     background-image: url('../../assets/pieces/Chess_qlt45.svg');
+// }
+
+// .K{
+//     background-image: url('../../assets/pieces/Chess_klt45.svg');
+//     // background-image: url('../../assets/pieces/modi.svg');
+// }
+
+// .P{
+//     background-image: url('../../assets/pieces/Chess_plt45.svg');
+// }

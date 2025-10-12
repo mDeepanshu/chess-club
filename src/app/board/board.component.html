@@ -1,0 +1,11 @@
+<div class="board-wrapper">
+    <div class="board">
+        @for (piece of pieces; track $index) {
+        <div class="square" [ngClass]="piece" (dragenter)="squareHover($index)"
+            (dragend)="pd2($index,piece,$event,false)" draggable="false">
+            @if(piece){<img [src]="'pieces/'+piece+'.svg'" class="piece P" draggable="true"
+                (dragenter)="piecesSelected(piece,$index)" />}
+        </div>
+        }
+    </div>
+</div>
