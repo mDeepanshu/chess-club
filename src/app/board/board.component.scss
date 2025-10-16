@@ -1,19 +1,34 @@
 .board-wrapper {
-    width: 800px;
+    // width: 800px;
+    width: 50%;
+    aspect-ratio: 1;
     overflow-x: hidden;
     border: 2px solid black;
 }
 
+@media (max-width: 1300px) {
+    .board-wrapper {
+        width: 75%;
+    }
+}
+
+@media (max-width: 800px) {
+    .board-wrapper {
+        width: 95%;
+    }
+}
+
 .board {
-    width: 900px;
-    height: 800px;
+    width: 112.5%;
+    // height: 800px;
+    height: 100%;
     display: flex;
     flex-wrap: wrap;
 }
 
 .square {
-    width: 100px;
-    height: 100px;
+    width: 11.11%;
+    height: 12.5%;
     // display: flex;
 }
 
@@ -34,8 +49,8 @@
 // }
 
 .piece {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    height: 100%;
     cursor: grab;
     display: block;
 }
