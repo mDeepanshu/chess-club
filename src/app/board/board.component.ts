@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Coordinate } from './board.models';
 
 @Component({
   selector: 'app-board',
@@ -10,90 +11,155 @@ import { CommonModule } from '@angular/common';
 })
 export class BoardComponent {
 
-  selectedPieceSquare: number = -1;
-  idx = -1;
+  blackToMove: boolean = false;
+  blackCastle: boolean = true;
+  whiteCastle: boolean = true;
+
+  selectedPieceLoc: Coordinate = { x: -1, y: -1 };
+  loc: Coordinate = { x: -1, y: -1 };
+
+  whitePieces = ['rw', 'nw', 'bw', 'qw', 'kw', 'pw'];
+  blackPieces = ['r', 'n', 'b', 'q', 'k', 'p'];
 
   pieces = [
-    'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r', '',
-    'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', '',
-    '', '', '', '', '', '', '', '', '',
-    '', '', '', '', '', '', '', '', '',
-    '', '', '', '', '', '', '', '', '',
-    '', '', '', '', '', '', '', '', '',
-    'pw', 'pw', 'pw', 'pw', 'pw', 'pw', 'pw', 'pw', '',
-    'rw', 'nw', 'bw', 'qw', 'kw', 'bw', 'nw', 'rw', ''
+    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r', ''],
+    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', ''],
+    ['', '', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', '', ''],
+    ['pw', 'pw', 'pw', 'pw', 'pw', 'pw', 'pw', 'pw', ''],
+    ['rw', 'nw', 'bw', 'qw', 'kw', 'bw', 'nw', 'rw', '']
   ];
 
-  piecesSelected(piece: string, idx: number) {
-    if (this.selectedPieceSquare == -1 && this.pieces[this.selectedPieceSquare] != '') this.selectedPieceSquare = idx;
+  piecesSelected(piece: string, x: number, y: number) {
+    if (this.selectedPieceLoc.x == -1 && this.pieces[x][y] != '') this.selectedPieceLoc = { x: x, y: y };
   }
 
-  squareHover(squareIdx: number) {
-    if (this.selectedPieceSquare != -1) this.idx = squareIdx;
+  squareHover(x: number, y: number) {
+    if (this.selectedPieceLoc.x != -1) {
+      this.loc = { x: x, y: y };
+    }
   }
 
-  pd2(squareIdx: number, piece: string, $event: MouseEvent, enter: boolean) {
+  pieceDrop(x: number, y: number, piece: string, $event: MouseEvent, enter: boolean) {
 
-    if (this.selectedPieceSquare == this.idx) return;
-    if (this.isValidMove(piece, this.selectedPieceSquare, this.idx) == false) return;
+    if (this.selectedPieceLoc.x == this.loc.x && this.selectedPieceLoc.y == this.loc.y) {
+      this.resetSquare();
+      return;
+    }
+    if (!this.isValidMove(piece, this.selectedPieceLoc, this.loc)) {
+      this.resetSquare();
+      return;
+    }
 
-    this.pieces[this.idx] = piece;
-    this.pieces[this.selectedPieceSquare] = '';
-    this.selectedPieceSquare = -1;
-    this.idx = -1;
+    this.pieces[this.loc.x][this.loc.y] = piece;
+    this.pieces[this.selectedPieceLoc.x][this.selectedPieceLoc.y] = '';
+    this.blackToMove = !this.blackToMove;
+    this.resetSquare();
+
   }
 
-  isValidMove(piece: string, fromIdx: number, toIdx: number): boolean {
-    if (piece == 'p') return this.pawnMove(fromIdx, toIdx, 1);
-    if (piece == 'pw') return this.pawnMove(fromIdx, toIdx, -1);
-    if (piece == 'b' || piece == 'bw') return this.bishopMove(fromIdx, toIdx);
-    if (piece == 'n' || piece == 'nw') return this.knightMove(fromIdx, toIdx);
-    if (piece == 'r' || piece == 'rw') return this.rookMove(fromIdx, toIdx);
-    if (piece == 'q' || piece == 'qw') return this.queenMove(fromIdx, toIdx);
-    if (piece == 'k' || piece == 'kw') return this.kingMove(fromIdx, toIdx);
+  resetSquare() {
+    this.selectedPieceLoc = { x: -1, y: -1 };
+    this.loc = { x: -1, y: -1 };
+  }
+
+  isValidMove(piece: string, fromLoc: Coordinate, toLoc: Coordinate): boolean {
+    if ((this.whitePieces.includes(piece) && (this.whitePieces.includes(this.pieces[toLoc.x][toLoc.y]) || this.blackToMove)) ||
+      (this.blackPieces.includes(piece) && (this.blackPieces.includes(this.pieces[toLoc.x][toLoc.y]) || !this.blackToMove))) return false;
+
+    if (piece == 'p') return this.pawnMove(fromLoc, toLoc, 1);
+    if (piece == 'pw') return this.pawnMove(fromLoc, toLoc, -1);
+    if (piece == 'b' || piece == 'bw') return this.bishopMove(fromLoc, toLoc);
+    if (piece == 'n' || piece == 'nw') return this.knightMove(fromLoc, toLoc);
+    if (piece == 'r' || piece == 'rw') return this.rookMove(fromLoc, toLoc);
+    if (piece == 'q' || piece == 'qw') return this.queenMove(fromLoc, toLoc);
+    if (piece == 'k' || piece == 'kw') return this.kingMove(fromLoc, toLoc, piece);
     return true;
   }
 
-  pawnMove(fromIdx: number, toIdx: number, dir: 1 | -1): boolean {
-    if (fromIdx + 9 * (dir) == toIdx || fromIdx + 18 * (dir) == toIdx) {
-      if (this.pieces[toIdx] == '') return true;
-      return false;
+  pawnMove(fromLoc: Coordinate, toLoc: Coordinate, dir: 1 | -1): boolean {
+    if (fromLoc.y != toLoc.y) return false;
+    if ((toLoc.x - fromLoc.x == dir) && this.pieces[toLoc.x][toLoc.y] == '') return true;
+    if (((dir == 1 && fromLoc.x == 1) || (dir == -1 && fromLoc.x == 6)) && toLoc.x - fromLoc.x == 2 * dir) return true;
+    return false;
+  }
+
+  bishopMove(fromLoc: Coordinate, toLoc: Coordinate): boolean {
+
+    let xStep = (toLoc.x - fromLoc.x) > 0 ? 1 : -1;
+    let yStep = (toLoc.y - fromLoc.y) > 0 ? 1 : -1;
+    let xCurr = fromLoc.x + xStep;
+    let yCurr = fromLoc.y + yStep;
+    while (xCurr != toLoc.x && yCurr != toLoc.y) {
+      if (this.pieces[xCurr][yCurr] != '') return false;
+      xCurr += xStep;
+      yCurr += yStep;
     }
-    if ((fromIdx + 8 * (dir) == toIdx || fromIdx + 10 * (dir) == toIdx) && this.pieces[toIdx] != '') return true;
+
+    if (Math.abs((fromLoc.x - toLoc.x)) == Math.abs((fromLoc.y - toLoc.y))) return true;
     return false;
   }
 
-  bishopMove(fromIdx: number, toIdx: number): boolean {
-    const x = fromIdx % 9;
-    const y = Math.floor(fromIdx / 9);
-    const x2 = toIdx % 9;
-    const y2 = Math.floor(toIdx / 9);
-    if (Math.abs(x - x2) == Math.abs(y - y2)) return true;
+  knightMove(fromLoc: Coordinate, toLoc: Coordinate): boolean {
+    if ((Math.abs(fromLoc.x - toLoc.x) == 2 && Math.abs(fromLoc.y - toLoc.y) == 1) ||
+      (Math.abs(fromLoc.x - toLoc.x) == 1 && Math.abs(fromLoc.y - toLoc.y) == 2)) return true;
     return false;
   }
 
-  knightMove(fromIdx: number, toIdx: number): boolean {
-    const x = fromIdx % 9;
-    const y = Math.floor(fromIdx / 9);
-    const x2 = toIdx % 9;
-    const y2 = Math.floor(toIdx / 9);
-    if ((Math.abs(x - x2) == 2 && Math.abs(y - y2) == 1) || (Math.abs(x - x2) == 1 && Math.abs(y - y2) == 2)) return true;
+  rookMove(fromLoc: Coordinate, toLoc: Coordinate): boolean {
+    if (fromLoc.x == toLoc.x) {
+      let minY = Math.min(fromLoc.y, toLoc.y);
+      let maxY = Math.max(fromLoc.y, toLoc.y);
+      for (let y = minY + 1; y < maxY; y++) {
+        if (this.pieces[fromLoc.x][y] != '') return false;
+      }
+    }
+    else if (fromLoc.y == toLoc.y) {
+      let minX = Math.min(fromLoc.x, toLoc.x);
+      let maxX = Math.max(fromLoc.x, toLoc.x);
+      for (let x = minX + 1; x < maxX; x++) {
+        if (this.pieces[x][fromLoc.y] != '') return false;
+      }
+    }
+
+    if (fromLoc.x == toLoc.x || fromLoc.y == toLoc.y) return true;
     return false;
   }
 
-  rookMove(fromIdx: number, toIdx: number): boolean {
-    if (Math.floor((fromIdx + 1) / 9) == Math.floor((toIdx + 1) / 9) || (fromIdx - toIdx) % 9 == 0) return true;
+  queenMove(fromLoc: Coordinate, toLoc: Coordinate): boolean {
+    if (this.bishopMove(fromLoc, toLoc) || this.rookMove(fromLoc, toLoc)) return true;
     return false;
   }
 
-  queenMove(fromIdx: number, toIdx: number): boolean {
-    if (this.rookMove(fromIdx, toIdx) || this.bishopMove(fromIdx, toIdx)) return true;
-    return false;
-  }
-
-  kingMove(fromIdx: number, toIdx: number): boolean {
-    const offsets = [1, -1, 8, -8, 9, -9, 10, -10];
-    if (offsets.some(offset => fromIdx + offset === toIdx)) return true;
+  kingMove(fromLoc: Coordinate, toLoc: Coordinate, piece: string): boolean {
+    if (Math.abs(fromLoc.x - toLoc.x) <= 1 && Math.abs(fromLoc.y - toLoc.y) <= 1) return true;
+    if (Math.abs(fromLoc.y - toLoc.y) == 2 && this.whitePieces.includes(piece) && this.whiteCastle) {
+      if (toLoc.y < fromLoc.y) {
+        if (this.pieces[7][3] != '' || this.pieces[7][2] != '' || this.pieces[7][1] != '') return false;
+        this.pieces[7][3] = 'rw';
+        this.pieces[7][0] = '';
+      } else {
+        if (this.pieces[7][5] != '' || this.pieces[7][6] != '') return false;
+        this.pieces[7][5] = 'rw';
+        this.pieces[7][7] = '';
+      }
+      this.whiteCastle = false;
+      return true;
+    }else if (Math.abs(fromLoc.y - toLoc.y) == 2 && this.blackPieces.includes(piece) && this.blackCastle) {
+      if (toLoc.y < fromLoc.y) {
+        if (this.pieces[0][3] != '' || this.pieces[0][2] != '' || this.pieces[0][1] != '') return false;
+        this.pieces[0][3] = 'r';
+        this.pieces[0][0] = '';
+      } else {
+        if (this.pieces[0][5] != '' || this.pieces[0][6] != '') return false;
+        this.pieces[0][5] = 'r';
+        this.pieces[0][7] = '';
+      }
+      this.blackCastle = false;
+      return true;
+    }
     return false;
   }
 
