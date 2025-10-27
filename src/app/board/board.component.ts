@@ -80,9 +80,10 @@ export class BoardComponent {
   }
 
   pawnMove(fromLoc: Coordinate, toLoc: Coordinate, dir: 1 | -1): boolean {
-    if (fromLoc.y != toLoc.y) return false;
-    if ((toLoc.x - fromLoc.x == dir) && this.pieces[toLoc.x][toLoc.y] == '') return true;
-    if (((dir == 1 && fromLoc.x == 1) || (dir == -1 && fromLoc.x == 6)) && toLoc.x - fromLoc.x == 2 * dir) return true;
+    if (((dir == 1 && fromLoc.x == 1) || (dir == -1 && fromLoc.x == 6)) && toLoc.x - fromLoc.x == 2 * dir && fromLoc.y == toLoc.y) return true;
+    if (Math.abs(fromLoc.y - toLoc.y) === 1 && this.pieces[toLoc.x][toLoc.y] != '') return true;
+    if (Math.abs(fromLoc.x - toLoc.x) === 1 && this.pieces[toLoc.x][toLoc.y] == '' && Math.abs(fromLoc.y - toLoc.y) === 0) return true;
+    // if (Math.abs(fromLoc.y - toLoc.y) > 1 || toLoc.x - fromLoc.x != dir) return false;
     return false;
   }
 
